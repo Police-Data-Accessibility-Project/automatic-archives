@@ -23,9 +23,12 @@ for entry in cache_info:
     else:
         update_delta = timedelta(days=int(update_delta))
 
-    # Cache if more than update_delta days have passed since last_cache
-    last_cached = datetime.strptime(entry.get('last_cached'), '%m-%d-%Y')
-    if last_cached == datetime.min or last_cached + update_delta < datetime.today():
+    last_cached = entry.get('last_cached')
+    if last_cached is not None:
+        last_cached = datetime.strptime(last_cached, '%m-%d-%Y')
+    
+    # Cache if never cached or more than update_delta days have passed since last_cache
+    if last_cached is None or last_cached + update_delta < datetime.today():
         source_url = entry.get('source_url')
         try :
             archive = savepagenow.capture(source_url, user_agent="Police Data Accountability Project")

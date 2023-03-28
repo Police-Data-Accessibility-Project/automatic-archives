@@ -75,7 +75,7 @@ for entry in data:
     url_cache_info.append({'agency_name': agency_name, 
                            'source_url': source_url, 
                            'update_delta': update_delta,
-                           'last_cached': '01-01-0001'})
+                           'last_cached': None})
 
 # Write updated JSON data to file
 with open(args.info_file, 'w') as f:
