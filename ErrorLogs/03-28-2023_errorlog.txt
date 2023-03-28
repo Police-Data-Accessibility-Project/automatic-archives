@@ -1,0 +1,22 @@
+[
+    {
+        "agency_name": "Beloit Police Department - WI",
+        "source_url": "http://gouda.beloitwi.gov/WebLink/0/edoc/68367/3Use%20of%20Force%202018%20-%20Updated%20-18-18.xls",
+        "exception": "{'Server': 'nginx/1.19.5', 'Date': 'Tue, 28 Mar 2023 14:30:02 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'cache-control': 'no-cache', 'x-app-server': 'wwwb-app14', 'x-ts': '520', 'x-tr': '151463', 'X-location': 'save-sync', 'X-RL': '0', 'X-NA': '0', 'X-Page-Cache': 'MISS', 'X-NID': '-', 'Referrer-Policy': 'no-referrer-when-downgrade', 'Permissions-Policy': 'interest-cohort=()'}"
+    },
+    {
+        "agency_name": "Sioux Falls Police Department - SD",
+        "source_url": "https://dataworks.siouxfalls.org/",
+        "exception": "{'Server': 'nginx/1.19.5', 'Date': 'Tue, 28 Mar 2023 14:32:33 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'cache-control': 'no-cache', 'x-app-server': 'wwwb-app53', 'x-ts': '520', 'x-tr': '150630', 'X-location': 'save-sync', 'X-RL': '0', 'X-NA': '0', 'X-Page-Cache': 'MISS', 'X-NID': '-', 'Referrer-Policy': 'no-referrer-when-downgrade', 'Permissions-Policy': 'interest-cohort=()'}"
+    },
+    {
+        "agency_name": "Delano Police Department - CA",
+        "source_url": "http://www.cityofdelano.org/108/Crime-Statistics",
+        "exception": "{'Server': 'nginx/1.19.5', 'Date': 'Tue, 28 Mar 2023 14:35:05 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'cache-control': 'no-cache', 'x-app-server': 'wwwb-app52', 'x-ts': '520', 'x-tr': '150653', 'X-location': 'save-sync', 'X-RL': '0', 'X-NA': '0', 'X-Page-Cache': 'MISS', 'X-NID': '-', 'Referrer-Policy': 'no-referrer-when-downgrade', 'Permissions-Policy': 'interest-cohort=()'}"
+    },
+    {
+        "agency_name": "Los Angeles Police Department - CA",
+        "source_url": "https://data.lacity.org/browse?q=crime%20data&sortBy=relevance",
+        "exception": "{'Server': 'nginx/1.19.5', 'Date': 'Tue, 28 Mar 2023 14:38:32 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'cache-control': 'no-cache', 'x-app-server': 'wwwb-app53', 'x-ts': '520', 'x-tr': '150485', 'X-location': 'save-sync', 'X-RL': '0', 'X-NA': '0', 'X-Page-Cache': 'MISS', 'X-NID': '-', 'Referrer-Policy': 'no-referrer-when-downgrade', 'Permissions-Policy': 'interest-cohort=()'}"
+    }
+]

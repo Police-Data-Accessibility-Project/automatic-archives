@@ -1,32 +1,44 @@
 [
     {
-        "agency_name": "Chicago Police Department - IL",
-        "source_url": "https://informationportal.igchicago.org/911-calls-for-cpd-service/",
+        "agency_name": "Detroit Police Department - MI",
+        "source_url": "https://detroitmi.gov/sites/detroitmi.localhost/files/2020-05/Officer-Involved%20Shooting%20HTF.pdf",
+        "update_delta": null,
+        "last_cached": "03-28-2023"
+    },
+    {
+        "agency_name": "Austin Police Department - TX",
+        "source_url": "data.austintexas.gov/resource/qhi8-a9bc.json",
+        "update_delta": null,
+        "last_cached": "03-28-2023"
+    },
+    {
+        "agency_name": "Beloit Police Department - WI",
+        "source_url": "http://gouda.beloitwi.gov/WebLink/0/edoc/68367/3Use%20of%20Force%202018%20-%20Updated%20-18-18.xls",
+        "update_delta": null,
+        "last_cached": null
+    },
+    {
+        "agency_name": "Sioux Falls Police Department - SD",
+        "source_url": "https://dataworks.siouxfalls.org/",
+        "update_delta": null,
+        "last_cached": null
+    },
+    {
+        "agency_name": "Delano Police Department - CA",
+        "source_url": "http://www.cityofdelano.org/108/Crime-Statistics",
+        "update_delta": 30,
+        "last_cached": null
+    },
+    {
+        "agency_name": "Los Angeles Police Department - CA",
+        "source_url": "data.lacity.org/resource/iy4q-t9vr.json",
+        "update_delta": null,
+        "last_cached": "03-28-2023"
+    },
+    {
+        "agency_name": "Los Angeles Police Department - CA",
+        "source_url": "https://data.lacity.org/browse?q=crime%20data&sortBy=relevance",
         "update_delta": 14,
-        "last_cached": "03-27-2023"
-    },
-    {
-        "agency_name": "Columbus Division of Police - OH",
-        "source_url": "https://www.columbus.gov/police-annualreports/",
-        "update_delta": 365,
-        "last_cached": "03-27-2023"
-    },
-    {
-        "agency_name": "New York City Police Department - NY",
-        "source_url": "https://data.cityofnewyork.us/Public-Safety/Civilian-Complaint-Review-Board-Complaints-Against/2mby-ccnw",
-        "update_delta": null,
-        "last_cached": "03-27-2023"
-    },
-    {
-        "agency_name": "Allegheny County Police Department - PA",
-        "source_url": "https://www.alleghenycounty.us/county-council/police-review-board-meetings.aspx",
-        "update_delta": null,
-        "last_cached": "03-27-2023"
-    },
-    {
-        "agency_name": "Cincinnati Police Department - OH",
-        "source_url": "https://www.cincinnati-oh.gov/police/department-references/police-department-procedure-manual/12545/",
-        "update_delta": null,
-        "last_cached": "03-27-2023"
+        "last_cached": null
     }
 ]
