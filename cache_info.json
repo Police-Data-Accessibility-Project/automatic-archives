@@ -1,0 +1,32 @@
+[
+    {
+        "agency_name": "Chicago Police Department - IL",
+        "source_url": "https://informationportal.igchicago.org/911-calls-for-cpd-service/",
+        "update_delta": 14,
+        "last_cached": "03-27-2023"
+    },
+    {
+        "agency_name": "Columbus Division of Police - OH",
+        "source_url": "https://www.columbus.gov/police-annualreports/",
+        "update_delta": 365,
+        "last_cached": "03-27-2023"
+    },
+    {
+        "agency_name": "New York City Police Department - NY",
+        "source_url": "https://data.cityofnewyork.us/Public-Safety/Civilian-Complaint-Review-Board-Complaints-Against/2mby-ccnw",
+        "update_delta": null,
+        "last_cached": "03-27-2023"
+    },
+    {
+        "agency_name": "Allegheny County Police Department - PA",
+        "source_url": "https://www.alleghenycounty.us/county-council/police-review-board-meetings.aspx",
+        "update_delta": null,
+        "last_cached": "03-27-2023"
+    },
+    {
+        "agency_name": "Cincinnati Police Department - OH",
+        "source_url": "https://www.cincinnati-oh.gov/police/department-references/police-department-procedure-manual/12545/",
+        "update_delta": null,
+        "last_cached": "03-27-2023"
+    }
+]
