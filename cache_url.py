@@ -1,47 +1,97 @@
-import savepagenow
-import argparse
 import json
 from datetime import datetime, timedelta
+import requests
+import os
 
-# Define the command-line arguments
-parser = argparse.ArgumentParser(description="Extracts URLs from JSON data and caches them at regular intervals on the internet archive.")
-parser.add_argument("input_file", help="Path to the JSON input file.")
+def match_freq(update_frequency):
 
-# Parse the command-line arguments
-args = parser.parse_args()
+    update_frequency_mapping = {
+        "As new shootings occur": 30,
+        "quarterly": 91,
+        "Quarterly": 45,
+        "<5 Minutes": 1,
+        "Monthly": 30,
+        "annually": 365,
+        "daily": 1,
+        "Nightly": 1,
+        "BiAnnually": 182,
+        "About weekly at least": 7,
+        "<2 Weeks": 14,
+        "Hourly": 1,
+        "Daily": 1,
+        "At least once per week": 7,
+        "semi-annually": 365,
+        "Weekly": 7,
+        "weekly or more often": 7,
+        "Annually": 365,
+        "weekly": 7,
+        "Irregularly every few months upon complaint or request.": 121,
+        "monthly": 30,
+        "Live": 1
+    }
 
-# Load the JSON data from the input file
-with open(args.input_file, "r") as info_file:
-    cache_info = json.load(info_file)
+    update_delta = update_frequency_mapping.get(update_frequency)
+
+    return update_delta
+
+api_key = 'Bearer ' + os.getenv("PDAP_API_KEY")
+response = requests.get("http://localhost:5000/archives", headers={'Authorization': api_key})
+data = response.json()
 
 # Extract url info and cache if needed
 exceptions = []
-for entry in cache_info:
-    update_delta = entry.get('update_delta')
-    if update_delta is None:
-        update_delta = datetime.max - datetime.today()
-    else:
-        update_delta = timedelta(days=int(update_delta))
-
-    last_cached = entry.get('last_cached')
-    if last_cached is not None:
-        last_cached = datetime.strptime(last_cached, '%m-%d-%Y')
-    
-    # Cache if never cached or more than update_delta days have passed since last_cache
-    if last_cached is None or last_cached + update_delta < datetime.today():
+if data is not str:
+    for entry in data:
+        entry['broken_source_url_as_of'] = None
         source_url = entry.get('source_url')
-        try :
-            archive = savepagenow.capture(source_url, user_agent="Police Data Accountability Project")
-            # Update the last_cached date if cache is successful
-            entry['last_cached'] = datetime.now().strftime('%m-%d-%Y')
-        except Exception as error:
-            exceptions.append({'agency_name': entry.get('agency_name'),
-                               'source_url': source_url, 
-                               'exception': str(error)})
+        if source_url is None:
+            continue
+        update_delta = match_freq(entry.get('update_frequency'))
+        agency_name = entry.get('agency_name')
+        if update_delta is None:
+            update_delta = datetime.max - datetime.today()
+        else:
+            update_delta = timedelta(days=int(update_delta))
 
-# Overwrite the cache_info file with updated last_cache
-with open(args.input_file, "w") as info_file:
-    json.dump(cache_info, fp = info_file, indent = 4)
+        last_cached = entry.get('last_cached')
+        if last_cached is not None:
+            last_cached = datetime.strptime(last_cached, '%Y-%m-%d')
+        else:
+            last_cached = datetime.min
+        
+        # Check if website exists in archive and compare archived website to current site
+        website_info = requests.get(f'https://archive.org/wayback/available?url={source_url}')
+        website_info_data = website_info.json()
+        if website_info_data['archived_snapshots']:
+            website_info_data_last_cached = website_info_data['archived_snapshots']['closest']['timestamp']
+            website_info_data_source_url = website_info_data['archived_snapshots']['closest']['url']
+            archived_site = requests.get(f'https://web.archive.org/web/{website_info_data_last_cached}/{website_info_data_source_url}')
+        else:
+            datetime.min
+            archived_site = None
+        
+        current_site = requests.get(source_url)
+
+        # Skip if the archived site is the same as current
+        if current_site.status_code == 200:
+            if archived_site.text == current_site.text:
+                continue
+
+        # Cache if never cached or more than update_delta days have passed since last_cache
+        if not website_info_data['archived_snapshots'] or last_cached == datetime.min or last_cached + update_delta < datetime.today() and datetime.strptime(website_info_data_last_cached, "%Y%m%d%H%M%S") + update_delta < datetime.today():
+            try:
+                api_url = "http://web.archive.org/save/{}".format(source_url)
+                archive = requests.post(api_url)
+                # Update the last_cached date if cache is successful
+                entry['last_cached'] = datetime.now().strftime('%m-%d-%Y')
+            except Exception as error:
+                entry['broken_source_url_as_of'] = datetime.now().strftime('%m-%d-%Y')
+                exceptions.append({'agency_name': entry.get('agency_name'),
+                                'source_url': source_url, 
+                                'exception': str(error)})
+        # Send updated data to Data Sources
+        entry_json = json.dumps(entry)
+        response = requests.put("http://localhost:5000/archives", json=entry_json, headers={'Authorization': api_key})
 
 # Write any exceptions to a daily error log
 file_name = 'ErrorLogs/' + datetime.now().strftime('%m-%d-%Y') + '_errorlog.txt'
