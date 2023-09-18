@@ -45,6 +45,7 @@ if data is not str:
         entry['broken_source_url_as_of'] = None
         source_url = entry.get('source_url')
         if source_url is None:
+            entry['broken_source_url_as_of'] = datetime.now().strftime('%m-%d-%Y')
             continue
         update_delta = match_freq(entry.get('update_frequency'))
         agency_name = entry.get('agency_name')
