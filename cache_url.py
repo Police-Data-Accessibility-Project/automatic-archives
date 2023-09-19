@@ -46,7 +46,15 @@ if data is not str:
         source_url = entry.get('source_url')
         if source_url is None:
             entry['broken_source_url_as_of'] = datetime.now().strftime('%m-%d-%Y')
-            continue
+            try:
+                entry_json = json.dumps(entry)
+                response = requests.put("http://localhost:5000/archives", json=entry_json, headers={'Authorization': api_key})
+                raise Exception('No source_url')
+            except Exception as error:
+                exceptions.append({'agency_name': entry.get('agency_name'),
+                                'source_url': source_url, 
+                                'exception': str(error)})
+                continue
         update_delta = match_freq(entry.get('update_frequency'))
         agency_name = entry.get('agency_name')
         if update_delta is None:
@@ -61,38 +69,58 @@ if data is not str:
             last_cached = datetime.min
         
         # Check if website exists in archive and compare archived website to current site
-        website_info = requests.get(f'https://archive.org/wayback/available?url={source_url}')
-        website_info_data = website_info.json()
-        if website_info_data['archived_snapshots']:
-            website_info_data_last_cached = website_info_data['archived_snapshots']['closest']['timestamp']
-            website_info_data_source_url = website_info_data['archived_snapshots']['closest']['url']
-            archived_site = requests.get(f'https://web.archive.org/web/{website_info_data_last_cached}/{website_info_data_source_url}')
-        else:
-            datetime.min
-            archived_site = None
+        try:
+            print(f'Getting website info for {source_url}')
+            website_info = requests.get(f'https://archive.org/wayback/available?url={source_url}')
+            print(f'Received website info for {source_url}')
+            website_info_data = website_info.json()
+            if website_info_data['archived_snapshots']:
+                website_info_data_last_cached = website_info_data['archived_snapshots']['closest']['timestamp']
+                website_info_data_source_url = website_info_data['archived_snapshots']['closest']['url']
+                print(f'Getting archived website info for {source_url}')
+                archived_site = requests.get(f'https://web.archive.org/web/{website_info_data_last_cached}/{website_info_data_source_url}')
+                print(f'Received archived website info for {source_url}')
+            else:
+                last_cached = datetime.min
+                archived_site = None
+        except Exception as error:
+            print(str(error))
         
-        current_site = requests.get(source_url)
+        try:
+            print(f'Getting text for current site at {source_url}')
+            current_site = requests.get(source_url)
+            print(f'Received current site {current_site}')
 
-        # Skip if the archived site is the same as current
-        if current_site.status_code == 200:
-            if archived_site.text == current_site.text:
-                continue
+            # Skip if the archived site is the same as current
+            if current_site.status_code == 200:
+                if archived_site.text == current_site.text:
+                    continue
+        except Exception as error:
+            entry['broken_source_url_as_of'] = datetime.now().strftime('%m-%d-%Y')
+            exceptions.append({'agency_name': entry.get('agency_name'),
+                                'source_url': source_url, 
+                                'exception': str(error)})
 
         # Cache if never cached or more than update_delta days have passed since last_cache
         if not website_info_data['archived_snapshots'] or last_cached == datetime.min or last_cached + update_delta < datetime.today() and datetime.strptime(website_info_data_last_cached, "%Y%m%d%H%M%S") + update_delta < datetime.today():
             try:
                 api_url = "http://web.archive.org/save/{}".format(source_url)
+                print(f'Posting archive for {source_url}')
                 archive = requests.post(api_url)
+                print(f'Posted archive at {archive}')
                 # Update the last_cached date if cache is successful
                 entry['last_cached'] = datetime.now().strftime('%m-%d-%Y')
             except Exception as error:
-                entry['broken_source_url_as_of'] = datetime.now().strftime('%m-%d-%Y')
+                print(str(error))
                 exceptions.append({'agency_name': entry.get('agency_name'),
                                 'source_url': source_url, 
                                 'exception': str(error)})
+    
         # Send updated data to Data Sources
         entry_json = json.dumps(entry)
+        print(f'Sending request with {entry_json}')
         response = requests.put("http://localhost:5000/archives", json=entry_json, headers={'Authorization': api_key})
+        print('Request complete')
 
 # Write any exceptions to a daily error log
 file_name = 'ErrorLogs/' + datetime.now().strftime('%m-%d-%Y') + '_errorlog.txt'
