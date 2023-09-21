@@ -70,9 +70,7 @@ if data is not str:
         
         # Check if website exists in archive and compare archived website to current site
         try:
-            print(f'Getting website info for {source_url}')
             website_info = requests.get(f'https://archive.org/wayback/available?url={source_url}')
-            print(f'Received website info for {source_url}')
             website_info_data = website_info.json()
             if website_info_data['archived_snapshots']:
                 website_info_data_last_cached = website_info_data['archived_snapshots']['closest']['timestamp']
@@ -84,9 +82,7 @@ if data is not str:
         if not website_info_data['archived_snapshots'] or last_cached == datetime.min or last_cached + update_delta < datetime.today() and datetime.strptime(website_info_data_last_cached, "%Y%m%d%H%M%S") + update_delta < datetime.today():
             try:
                 api_url = "http://web.archive.org/save/{}".format(source_url)
-                print(f'Posting archive for {source_url}')
                 archive = requests.post(api_url)
-                print(f'Posted archive at {archive}')
                 # Update the last_cached date if cache is successful
                 entry['last_cached'] = datetime.now().strftime('%m-%d-%Y')
             except Exception as error:
@@ -97,9 +93,7 @@ if data is not str:
     
         # Send updated data to Data Sources
         entry_json = json.dumps(entry)
-        print(f'Sending request with {entry_json}')
         response = requests.put("http://localhost:5000/archives", json=entry_json, headers={'Authorization': api_key})
-        print('Request complete')
 
 # Write any exceptions to a daily error log
 file_name = 'ErrorLogs/' + datetime.now().strftime('%m-%d-%Y') + '_errorlog.txt'
