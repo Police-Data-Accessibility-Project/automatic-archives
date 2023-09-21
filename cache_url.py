@@ -77,29 +77,8 @@ if data is not str:
             if website_info_data['archived_snapshots']:
                 website_info_data_last_cached = website_info_data['archived_snapshots']['closest']['timestamp']
                 website_info_data_source_url = website_info_data['archived_snapshots']['closest']['url']
-                print(f'Getting archived website info for {source_url}')
-                archived_site = requests.get(f'https://web.archive.org/web/{website_info_data_last_cached}/{website_info_data_source_url}')
-                print(f'Received archived website info for {source_url}')
-            else:
-                last_cached = datetime.min
-                archived_site = None
         except Exception as error:
             print(str(error))
-        
-        try:
-            print(f'Getting text for current site at {source_url}')
-            current_site = requests.get(source_url)
-            print(f'Received current site {current_site}')
-
-            # Skip if the archived site is the same as current
-            if current_site.status_code == 200:
-                if archived_site.text == current_site.text:
-                    continue
-        except Exception as error:
-            entry['broken_source_url_as_of'] = datetime.now().strftime('%m-%d-%Y')
-            exceptions.append({'agency_name': entry.get('agency_name'),
-                                'source_url': source_url, 
-                                'exception': str(error)})
 
         # Cache if never cached or more than update_delta days have passed since last_cache
         if not website_info_data['archived_snapshots'] or last_cached == datetime.min or last_cached + update_delta < datetime.today() and datetime.strptime(website_info_data_last_cached, "%Y%m%d%H%M%S") + update_delta < datetime.today():
