@@ -35,7 +35,7 @@ def match_freq(update_frequency):
     return update_delta
 
 api_key = 'Bearer ' + os.getenv("PDAP_API_KEY")
-response = requests.get("http://localhost:5000/archives", headers={'Authorization': api_key})
+response = requests.get("https://data-sources.pdap.io/archives", headers={'Authorization': api_key})
 data = response.json()
 
 # Extract url info and cache if needed
@@ -48,9 +48,10 @@ if data is not str:
             entry['broken_source_url_as_of'] = datetime.now().strftime('%m-%d-%Y')
             try:
                 entry_json = json.dumps(entry)
-                response = requests.put("http://localhost:5000/archives", json=entry_json, headers={'Authorization': api_key})
+                response = requests.put("https://data-sources.pdap.io/archives", json=entry_json, headers={'Authorization': api_key})
                 raise Exception('No source_url')
             except Exception as error:
+                print(str(error))
                 exceptions.append({'agency_name': entry.get('agency_name'),
                                 'source_url': source_url, 
                                 'exception': str(error)})
@@ -69,17 +70,20 @@ if data is not str:
             last_cached = datetime.min
         
         # Check if website exists in archive and compare archived website to current site
+        website_info_data = None
         try:
             website_info = requests.get(f'https://archive.org/wayback/available?url={source_url}')
             website_info_data = website_info.json()
             if website_info_data['archived_snapshots']:
-                website_info_data_last_cached = website_info_data['archived_snapshots']['closest']['timestamp']
+                website_info_data_last_cached = datetime.strptime(website_info_data['archived_snapshots']['closest']['timestamp'], "%Y%m%d%H%M%S")
                 website_info_data_source_url = website_info_data['archived_snapshots']['closest']['url']
+                if website_info_data_last_cached > last_cached:
+                    last_cached = website_info_data_last_cached
         except Exception as error:
             print(str(error))
 
         # Cache if never cached or more than update_delta days have passed since last_cache
-        if not website_info_data['archived_snapshots'] or last_cached == datetime.min or last_cached + update_delta < datetime.today() and datetime.strptime(website_info_data_last_cached, "%Y%m%d%H%M%S") + update_delta < datetime.today():
+        if not website_info_data['archived_snapshots'] or last_cached + update_delta < datetime.today():
             try:
                 api_url = "http://web.archive.org/save/{}".format(source_url)
                 archive = requests.post(api_url)
@@ -90,10 +94,12 @@ if data is not str:
                 exceptions.append({'agency_name': entry.get('agency_name'),
                                 'source_url': source_url, 
                                 'exception': str(error)})
+        else:
+            entry['last_cached'] = last_cached.strftime('%m-%d-%Y')
     
         # Send updated data to Data Sources
         entry_json = json.dumps(entry)
-        response = requests.put("http://localhost:5000/archives", json=entry_json, headers={'Authorization': api_key})
+        response = requests.put("https://data-sources.pdap.io/archives", json=entry_json, headers={'Authorization': api_key})
 
 # Write any exceptions to a daily error log
 file_name = 'ErrorLogs/' + datetime.now().strftime('%m-%d-%Y') + '_errorlog.txt'
