@@ -6,28 +6,19 @@ import os
 def match_freq(update_frequency):
 
     update_frequency_mapping = {
-        "As new shootings occur": 30,
-        "quarterly": 91,
-        "Quarterly": 45,
-        "<5 Minutes": 1,
-        "Monthly": 30,
-        "annually": 365,
-        "daily": 1,
-        "Nightly": 1,
-        "BiAnnually": 182,
-        "About weekly at least": 7,
-        "<2 Weeks": 14,
-        "Hourly": 1,
+        "Incident-based": 30,
+        "< Hourly": 1/24,
+        "Hourly": 1/24,
         "Daily": 1,
-        "At least once per week": 7,
-        "semi-annually": 365,
         "Weekly": 7,
-        "weekly or more often": 7,
+        "Bi-weekly": 14,
+        "Monthly": 30,
+        "Quarterly": 90,
         "Annually": 365,
-        "weekly": 7,
-        "Irregularly every few months upon complaint or request.": 121,
-        "monthly": 30,
-        "Live": 1
+        "> Annually": 730,
+        "On request": None,
+        "No updates / rarely updated": None,
+        "Other": None,
     }
 
     update_delta = update_frequency_mapping.get(update_frequency)
@@ -35,13 +26,14 @@ def match_freq(update_frequency):
     return update_delta
 
 api_key = 'Bearer ' + os.getenv("PDAP_API_KEY")
-response = requests.get("https://data-sources.pdap.io/archives", headers={'Authorization': api_key})
+response = requests.get("http://data-sources.pdap.io/archives", headers={'Authorization': api_key})
 data = response.json()
 
 # Extract url info and cache if needed
 exceptions = []
 if data is not str:
-    for entry in data:
+    for entry in data[:2]:
+        print(entry)
         entry['broken_source_url_as_of'] = None
         source_url = entry.get('source_url')
         if source_url is None:
@@ -58,12 +50,14 @@ if data is not str:
                 continue
         update_delta = match_freq(entry.get('update_frequency'))
         agency_name = entry.get('agency_name')
+        print("original update_delta: ", update_delta)
         if update_delta is None:
             update_delta = datetime.max - datetime.today()
         else:
             update_delta = timedelta(days=int(update_delta))
 
         last_cached = entry.get('last_cached')
+        print("original last cached: ", last_cached)
         if last_cached is not None:
             last_cached = datetime.strptime(last_cached, '%Y-%m-%d')
         else:
@@ -74,6 +68,7 @@ if data is not str:
         try:
             website_info = requests.get(f'https://archive.org/wayback/available?url={source_url}')
             website_info_data = website_info.json()
+            print("archive response: ", website_info_data)
             if website_info_data['archived_snapshots']:
                 website_info_data_last_cached = datetime.strptime(website_info_data['archived_snapshots']['closest']['timestamp'], "%Y%m%d%H%M%S")
                 website_info_data_source_url = website_info_data['archived_snapshots']['closest']['url']
@@ -83,6 +78,7 @@ if data is not str:
             print(str(error))
 
         # Cache if never cached or more than update_delta days have passed since last_cache
+        print(last_cached + update_delta)
         if not website_info_data['archived_snapshots'] or last_cached + update_delta < datetime.today():
             try:
                 api_url = "http://web.archive.org/save/{}".format(source_url)
