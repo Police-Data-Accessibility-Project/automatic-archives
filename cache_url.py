@@ -6,7 +6,7 @@ import os
 def match_freq(update_frequency):
 
     update_frequency_mapping = {
-        "Incident-based": 30,
+        "Incident-based": 7,
         "< Hourly": 1/24,
         "Hourly": 1/24,
         "Daily": 1,
@@ -26,14 +26,13 @@ def match_freq(update_frequency):
     return update_delta
 
 api_key = 'Bearer ' + os.getenv("PDAP_API_KEY")
-response = requests.get("http://data-sources.pdap.io/archives", headers={'Authorization': api_key})
+response = requests.get("https://data-sources.pdap.io/archives", headers={'Authorization': api_key})
 data = response.json()
 
 # Extract url info and cache if needed
 exceptions = []
 if data is not str:
-    for entry in data[:2]:
-        print(entry)
+    for entry in data:
         entry['broken_source_url_as_of'] = None
         source_url = entry.get('source_url')
         if source_url is None:
@@ -50,14 +49,12 @@ if data is not str:
                 continue
         update_delta = match_freq(entry.get('update_frequency'))
         agency_name = entry.get('agency_name')
-        print("original update_delta: ", update_delta)
         if update_delta is None:
             update_delta = datetime.max - datetime.today()
         else:
             update_delta = timedelta(days=int(update_delta))
 
         last_cached = entry.get('last_cached')
-        print("original last cached: ", last_cached)
         if last_cached is not None:
             last_cached = datetime.strptime(last_cached, '%Y-%m-%d')
         else:
@@ -68,7 +65,6 @@ if data is not str:
         try:
             website_info = requests.get(f'https://archive.org/wayback/available?url={source_url}')
             website_info_data = website_info.json()
-            print("archive response: ", website_info_data)
             if website_info_data['archived_snapshots']:
                 website_info_data_last_cached = datetime.strptime(website_info_data['archived_snapshots']['closest']['timestamp'], "%Y%m%d%H%M%S")
                 website_info_data_source_url = website_info_data['archived_snapshots']['closest']['url']
@@ -76,9 +72,11 @@ if data is not str:
                     last_cached = website_info_data_last_cached
         except Exception as error:
             print(str(error))
+            website_info_data = {'archived_snapshots': None}
+
 
         # Cache if never cached or more than update_delta days have passed since last_cache
-        print(last_cached + update_delta)
+        print(entry)
         if not website_info_data['archived_snapshots'] or last_cached + update_delta < datetime.today():
             try:
                 api_url = "http://web.archive.org/save/{}".format(source_url)
