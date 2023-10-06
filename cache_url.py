@@ -76,7 +76,6 @@ if data is not str:
 
 
         # Cache if never cached or more than update_delta days have passed since last_cache
-        print(entry)
         if not website_info_data['archived_snapshots'] or last_cached + update_delta < datetime.today():
             try:
                 api_url = "http://web.archive.org/save/{}".format(source_url)
