@@ -6,28 +6,19 @@ import os
 def match_freq(update_frequency):
 
     update_frequency_mapping = {
-        "As new shootings occur": 30,
-        "quarterly": 91,
-        "Quarterly": 45,
-        "<5 Minutes": 1,
-        "Monthly": 30,
-        "annually": 365,
-        "daily": 1,
-        "Nightly": 1,
-        "BiAnnually": 182,
-        "About weekly at least": 7,
-        "<2 Weeks": 14,
-        "Hourly": 1,
+        "Incident-based": 7,
+        "< Hourly": 1/24,
+        "Hourly": 1/24,
         "Daily": 1,
-        "At least once per week": 7,
-        "semi-annually": 365,
         "Weekly": 7,
-        "weekly or more often": 7,
+        "Bi-weekly": 14,
+        "Monthly": 30,
+        "Quarterly": 90,
         "Annually": 365,
-        "weekly": 7,
-        "Irregularly every few months upon complaint or request.": 121,
-        "monthly": 30,
-        "Live": 1
+        "> Annually": 730,
+        "On request": None,
+        "No updates / rarely updated": None,
+        "Other": None,
     }
 
     update_delta = update_frequency_mapping.get(update_frequency)
@@ -81,6 +72,8 @@ if data is not str:
                     last_cached = website_info_data_last_cached
         except Exception as error:
             print(str(error))
+            website_info_data = {'archived_snapshots': None}
+
 
         # Cache if never cached or more than update_delta days have passed since last_cache
         if not website_info_data['archived_snapshots'] or last_cached + update_delta < datetime.today():

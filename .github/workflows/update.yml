@@ -2,7 +2,7 @@ name: Extract JSON data
 
 on:
   schedule:
-    - cron: '0 0 1 * *' # Run at midnight on the first day of each month
+    - cron: '0 * * * *' # Run every hour
 
 jobs:
   cache-urls:
