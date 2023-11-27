@@ -2,9 +2,6 @@ import json
 from datetime import datetime, timedelta
 import requests
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 def match_freq(update_frequency):
 
@@ -40,7 +37,7 @@ if data is not str:
         entry["broken_source_url_as_of"] = None
         source_url = entry.get("source_url")
         if source_url is None:
-            entry["broken_source_url_as_of"] = datetime.now().strftime("%m-%d-%Y")
+            entry["broken_source_url_as_of"] = datetime.now().strftime("%Y-%m-%d")
             try:
                 entry_json = json.dumps(entry)
                 response = requests.put("https://data-sources.pdap.io/api/archives", json=entry_json, headers={"Authorization": api_key})
@@ -85,21 +82,21 @@ if data is not str:
                 api_url = "http://web.archive.org/save/{}".format(source_url)
                 archive = requests.post(api_url)
                 # Update the last_cached date if cache is successful
-                entry["last_cached"] = datetime.now().strftime("%m-%d-%Y")
+                entry["last_cached"] = datetime.now().strftime("%Y-%m-%d")
             except Exception as error:
                 print(str(error))
                 exceptions.append({"agency_name": entry.get("agency_name"),
                                 "source_url": source_url, 
                                 "exception": str(error)})
         else:
-            entry["last_cached"] = last_cached.strftime("%m-%d-%Y")
+            entry["last_cached"] = last_cached.strftime("%Y-%m-%d")
     
         # Send updated data to Data Sources
         entry_json = json.dumps(entry)
         response = requests.put("https://data-sources.pdap.io/api/archives", json=entry_json, headers={"Authorization": api_key})
 
 # Write any exceptions to a daily error log
-file_name = "ErrorLogs/" + datetime.now().strftime("%m-%d-%Y") + "_errorlog.txt"
+file_name = "ErrorLogs/" + datetime.now().strftime("%Y-%m-%d") + "_errorlog.txt"
 with open(file_name, "w") as error_log:
     if len(exceptions) > 0:
         json.dump(exceptions, fp=error_log, indent=4)
