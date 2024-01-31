@@ -30,7 +30,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Extract data
-        run: python cache_url.py cache_info.json
+        run: python cache_url.py
         env:
-          INPUT_FILE: cache_info.json
+          VUE_APP_PDAP_API_KEY: ${{ secrets.VUE_APP_PDAP_API_KEY }}
 
