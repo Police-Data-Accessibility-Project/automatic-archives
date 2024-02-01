@@ -33,4 +33,4 @@ jobs:
         run: python cache_url.py
         env:
           VUE_APP_PDAP_API_KEY: ${{ secrets.VUE_APP_PDAP_API_KEY }}
-
+	  VITE_VUE_APP_BASE_URL: ${{ secrets.VITE_VUE_APP_BASE_URL }}
