@@ -3,7 +3,7 @@ This tool uses the [PDAP API](https://docs.pdap.io/api/endpoints/data-sources-da
 
 Then, it uses the PDAP API to update the Data Sources' `last_cached` and `url_status` properties.
 
-The script is set up to run with a GitHub Actions workflow.
+This script runs from the Automation Manager on a daily basis, with the Jenkinsfile and the Dockerfile utilized to ensure the script runs in a consistent environment and manner.
 
 Requires the following environment variables to be set:
 
