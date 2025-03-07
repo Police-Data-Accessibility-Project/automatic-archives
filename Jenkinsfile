@@ -16,13 +16,15 @@ pipeline {
     stages {
         stage('Retrieve JSON from Previous Build') {
             steps {
-                try {
-                    copyArtifacts projectName: "${env.JOB_NAME}", filter: 'cache.json', selector: lastSuccessful()
-                    def jsonContent = readFile 'cache.json'
-                    def jsonData = new groovy.json.JsonSlurper().parseText(jsonContent)
-                    echo "Loaded JSON from previous build: ${jsonData}"
-                } catch (Exception e) {
-                    echo "No previous successful build found, proceeding without cache."
+                script{
+                    try {
+                            copyArtifacts projectName: "${env.JOB_NAME}", filter: 'cache.json', selector: lastSuccessful()
+                            def jsonContent = readFile 'cache.json'
+                            def jsonData = new groovy.json.JsonSlurper().parseText(jsonContent)
+                            echo "Loaded JSON from previous build: ${jsonData}"
+                        } catch (Exception e) {
+                            echo "No previous successful build found, proceeding without cache."
+                    }
                 }
             }
         }
