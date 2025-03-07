@@ -34,6 +34,7 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: 'cache.json', fingerprint: true
             }
+        }
     }
     post {
         failure {
