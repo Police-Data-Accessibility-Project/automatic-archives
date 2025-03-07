@@ -14,12 +14,26 @@ pipeline {
     }
 
     stages {
+        stage('Retrieve JSON from Previous Build') {
+            steps {
+                copyArtifacts projectName: "${env.JOB_NAME}", filter: 'cache.json', selector: lastSuccessful()
+                script {
+                    def jsonContent = readFile 'cache.json'
+                    def jsonData = new groovy.json.JsonSlurper().parseText(jsonContent)
+                    echo "Loaded JSON from previous build: ${jsonData}"
+                }
+            }
+        }
         stage('Run Automatic Archive') {
             steps {
                 echo 'Running Automatic Archive...'
                 sh 'python cache_url.py'
             }
         }
+        stage('Save cache') {
+            steps {
+                archiveArtifacts artifacts: 'cache.json', fingerprint: true
+            }
     }
     post {
         failure {
