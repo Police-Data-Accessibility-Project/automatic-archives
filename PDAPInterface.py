@@ -40,7 +40,7 @@ class PDAPInterface:
             f"{self.base_url}/archives",
             params={
                 "update_frequency": update_frequency.value,
-                "last_archived_before": last_archived_before.isoformat()
+                "last_archived_before": last_archived_before.strftime("%Y-%m-%d")
             },
             headers=authorization_header,
             timeout=10
