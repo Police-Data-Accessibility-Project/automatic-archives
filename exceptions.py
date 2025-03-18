@@ -1,0 +1,2 @@
+class ArchiveLastCacheNotFoundError(Exception):
+    pass
